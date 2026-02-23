@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+
+# Project Specific
+.env
+temp/
+assets/music/background.*
+uploads/
+logs/
+*.mp4
+*.mp3
+
+# IDEs
+.vscode/
+.idea/

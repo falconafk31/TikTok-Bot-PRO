@@ -1,0 +1,22 @@
+services:
+  bot:
+    build: .
+    restart: always
+    env_file: .env
+    volumes:
+      - ./assets:/app/assets
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    command: python bot.py
+
+  dashboard:
+    build: .
+    restart: always
+    env_file: .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./assets:/app/assets
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    command: python dashboard.py
