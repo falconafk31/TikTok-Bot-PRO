@@ -1,22 +1,51 @@
-services:
-  bot:
-    build: .
-    restart: always
-    env_file: .env
-    volumes:
-      - ./assets:/app/assets
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
-    command: python bot.py
+version: '3.8'
 
-  dashboard:
+services:
+  # Layanan Utama (Dashboard Produk/Affiliate)
+  main-dashboard:
     build: .
-    restart: always
-    env_file: .env
-    ports:
-      - "${DASHBOARD_PORT:-5000}:5000"
-    volumes:
-      - ./assets:/app/assets
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
+    container_name: tiktok-main-pro
     command: python dashboard.py
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ./assets:/app/assets
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+
+  # Layanan Khusus Music Video
+  music-dashboard:
+    build: .
+    container_name: tiktok-music-pro
+    command: python music_dashboard.py
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ./assets:/app/assets
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+
+  # Layanan Telegram Bot
+  telegram-bot:
+    build: .
+    container_name: tiktok-bot-pro
+    command: python bot.py
+    restart: unless-stopped
+    volumes:
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ./assets:/app/assets
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env

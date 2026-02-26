@@ -40,360 +40,221 @@ def login_required(f):
     return decorated_function
 
 BASE_CSS = """
-:root {
-    --bg-main: #f0f5ff;
-    --card-bg: #ffffff;
-    --sidebar-bg: linear-gradient(180deg, #0052D4 0%, #4364F7 50%, #6FB1FC 100%);
-    --accent-blue: #007bff;
-    --accent-royal: #0056b3;
-    --accent-cyan: #00b4d8;
-    --accent-success: #28a745;
-    --accent-danger: #dc3545;
-    --text-primary: #1a365d;
-    --text-secondary: #4a5568;
-    --border-soft: rgba(0, 0, 0, 0.05);
-    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    --sidebar-width: 260px;
+    --primary: #10b981;
+    --secondary: #fbbf24;
 }
-
-body { 
-    font-family: 'Outfit', 'Inter', sans-serif; 
-    background: var(--bg-main);
-    color: var(--text-primary); 
-    margin: 0; padding: 0;
-    min-height: 100vh;
-    display: flex;
-    line-height: 1.6;
+.sidebar-transition { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.glass-panel { 
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
-
-/* Scrollbar */
+.glass-input {
+    background: rgba(248, 250, 252, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.3s ease;
+}
+.glass-input:focus {
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    border-color: #34d399;
+}
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f8fafc; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f8fafc; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.6); border-radius: 20px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(148, 163, 184, 0.8); }
 
-.sidebar {
-    width: var(--sidebar-width);
-    background: var(--sidebar-bg);
-    height: 100vh;
-    position: fixed;
-    padding: 40px 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-    color: white;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
+.animated-bg {
+    background: linear-gradient(-45deg, #f8fafc, #f0fdf4, #fefce8, #f8fafc);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
 }
-
-.main-content { 
-    flex: 1;
-    margin-left: var(--sidebar-width);
-    padding: 60px 50px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.logo { 
-    font-size: 24px; 
-    font-weight: 800; 
-    color: white;
-    margin-bottom: 50px;
-    letter-spacing: -0.5px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 20px;
-}
-
-.nav-menu { list-style: none; padding: 0; margin: 0; }
-.nav-item { margin-bottom: 10px; }
-.nav-link { 
-    text-decoration: none; 
-    color: rgba(255,255,255,0.8); 
-    padding: 14px 20px; 
-    border-radius: 14px; 
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    transform: translateX(5px);
-}
-
-.nav-link.active { 
-    background: white;
-    color: var(--accent-royal);
-    font-weight: 700;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.card { 
-    background: var(--card-bg);
-    border: 1px solid var(--border-soft);
-    border-radius: 20px;
-    padding: 35px;
-    margin-bottom: 30px;
-    box-shadow: var(--shadow-soft);
-    transition: all 0.3s ease;
-}
-
-.card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08); }
-
-.btn { 
-    background: var(--accent-blue);
-    border: none;
-    color: white; 
-    padding: 14px 28px; 
-    border-radius: 14px; 
-    cursor: pointer; 
-    font-weight: 700; 
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.btn:hover { 
-    background: var(--accent-royal);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
-}
-
-.btn-red { background: var(--accent-danger); }
-.btn-red:hover { background: #c82333; box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3); }
-
-.btn-outline { 
-    background: white; 
-    border: 1.5px solid #e2e8f0; 
-    color: var(--text-secondary);
-}
-.btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: #f8fafc; }
-
-input[type="text"], input[type="file"], textarea, select {
-    width: 100%; padding: 15px;
-    background: #f8fafc;
-    border: 2px solid #edf2f7;
-    border-radius: 14px;
-    color: var(--text-primary);
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-    font-size: 15px;
-}
-
-input:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-    background: white;
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
-}
-
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; margin-bottom: 40px; }
-.stat-card { text-align: center; }
-.stat-value { font-size: 42px; font-weight: 800; color: var(--accent-blue); }
-.stat-label { font-size: 14px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-
-.flash-msg { 
-    padding: 18px 28px; 
-    border-radius: 16px; 
-    margin-bottom: 40px; 
-    background: #ebf8ff;
-    color: #2b6cb0;
-    border-left: 6px solid #3182ce;
-    font-weight: 600;
-    animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-.menu-toggle { display: none; }
-
-@media (max-width: 992px) {
-    .sidebar { transform: translateX(-100%); width: 260px; height: 100vh; position: fixed; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
-    .sidebar.active { transform: translateX(0); }
-    .main-content { margin-left: 0; padding: 40px 20px; }
-    .menu-toggle { display: block; position: fixed; top: 20px; right: 20px; z-index: 200; border-radius: 10px; }
-    .menu-toggle { display: block; position: fixed; top: 20px; right: 20px; z-index: 200; border-radius: 10px; }
-    .nav-menu { display: flex; flex-direction: column; width: 100%; }
-}
-
-/* Auth Pages */
-.auth-container {
-    width: 100%;
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 40px;
-    background: white;
-    border-radius: 24px;
-    box-shadow: var(--shadow-soft);
-    text-align: center;
-}
-
-.auth-logo {
-    font-size: 28px;
-    font-weight: 900;
-    background: var(--sidebar-bg);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 30px;
-}
-
-/* Loading Overlay */
-#loading-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(240, 245, 255, 0.95);
-    backdrop-filter: blur(12px);
-    z-index: 1000;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.loader-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin-bottom: 30px;
-}
-
-.loader-ring {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 6px solid #e2e8f0;
-    border-top: 6px solid var(--accent-blue);
-    border-radius: 50%;
-    animation: spin 1.5s linear infinite;
-}
-
-.loader-ring-outer {
-    position: absolute;
-    top: -10px; left: -10px; right: -10px; bottom: -10px;
-    border: 4px solid rgba(0, 123, 255, 0.1);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
-
-.loading-text {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin-bottom: 10px;
-}
-
-.loading-subtext {
-    color: var(--text-secondary);
-    font-size: 14px;
-    max-width: 300px;
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 """
 
 LAYOUT_START = """
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} - TikTok Bot Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>""" + BASE_CSS + """</style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        """ + BASE_CSS + """
+    </style>
 </head>
-<body>
-    <button class="btn btn-outline menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">☰ Menu</button>
-    <div class="sidebar">
-        <div class="logo">TIKTOK BOT PRO</div>
-        <ul class="nav-menu">
-            <li class="nav-item"><a href="/" class="nav-link {{ 'active' if active == 'dashboard' else '' }}">📊 Dashboard</a></li>
-            <li class="nav-item"><a href="/create" class="nav-link {{ 'active' if active == 'create' else '' }}">🎬 Video Creator</a></li>
-            <li class="nav-item"><a href="/gallery" class="nav-link {{ 'active' if active == 'gallery' else '' }}">🖼 Gallery</a></li>
-            <li class="nav-item"><a href="/settings" class="nav-link {{ 'active' if active == 'settings' else '' }}">⚙️ Settings</a></li>
-            <li class="nav-item" style="margin-top: auto; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <a href="/logout" class="nav-link" style="color: #ff8080; background: rgba(220, 53, 69, 0.1);"><span>🚪</span> Logout</a>
-            </li>
-        </ul>
-        <div style="margin-top: auto; font-size: 11px; color: var(--text-dim); opacity: 0.5;">v2.5 Premium Edition</div>
-    </div>
-    <div class="main-content">
+<body class="animated-bg text-slate-800 min-h-screen flex overflow-x-hidden selection:bg-emerald-200 selection:text-emerald-900">
+    
+    <!-- Mobile Header -->
+    <header class="lg:hidden fixed top-0 left-0 w-full glass-panel z-40 px-6 py-4 flex items-center justify-between border-b border-white/40">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-yellow-400 rounded-lg flex items-center justify-center text-white text-sm shadow-md">🚀</div>
+            <h1 class="text-xl font-black tracking-tight text-slate-800">BOT<span class="text-emerald-500">PRO</span></h1>
+        </div>
+        <button id="mobile-menu-btn" class="p-2 bg-white/50 backdrop-blur-sm rounded-lg text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm border border-slate-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </header>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity duration-300 opacity-0 cursor-pointer"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar-transition w-72 glass-panel h-screen fixed left-0 top-0 z-50 flex flex-col border-r border-white/40 transform -translate-x-full lg:translate-x-0">
+        <div class="p-8">
+            <div class="flex items-center justify-between mb-12">
+                <div class="flex items-center gap-4 group cursor-pointer">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 via-emerald-500 to-yellow-400 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-emerald-200/50 group-hover:shadow-emerald-300/60 group-hover:scale-105 transition-all duration-300">🚀</div>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-800">BOT<span class="text-emerald-500">PRO</span></h1>
+                </div>
+                <button id="close-sidebar-btn" class="lg:hidden p-2 text-slate-400 hover:text-rose-500 rounded-full hover:bg-rose-50 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-3 relative">
+                <a href="/" class="group flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] {{ 'text-emerald-700 bg-emerald-50/80 shadow-sm border border-emerald-100/50' if active == 'dashboard' else 'text-slate-500 hover:bg-white/60 hover:text-slate-800' }}">
+                    <span class="text-xl">📊</span> Dashboard
+                </a>
+                <a href="/create" class="group flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] {{ 'text-emerald-700 bg-emerald-50/80 shadow-sm border border-emerald-100/50' if active == 'create' else 'text-slate-500 hover:bg-white/60 hover:text-slate-800' }}">
+                    <span class="text-xl">🎬</span> Video Creator
+                </a>
+                <a href="/gallery" class="group flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] {{ 'text-emerald-700 bg-emerald-50/80 shadow-sm border border-emerald-100/50' if active == 'gallery' else 'text-slate-500 hover:bg-white/60 hover:text-slate-800' }}">
+                    <span class="text-xl">🖼️</span> Galeri Video
+                </a>
+                <a href="/settings" class="group flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-[1.02] {{ 'text-emerald-700 bg-emerald-50/80 shadow-sm border border-emerald-100/50' if active == 'settings' else 'text-slate-500 hover:bg-white/60 hover:text-slate-800' }}">
+                    <span class="text-xl">⚙️</span> Pengaturan
+                </a>
+            </nav>
+        </div>
+
+        <div class="mt-auto p-8 text-center backdrop-blur-md bg-white/30 border-t border-white/50">
+            <a href="/logout" class="group flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-rose-500 hover:bg-rose-50/80 transition-all duration-300 hover:scale-[1.02] mb-6">
+                <span class="text-xl group-hover:-translate-x-1 transition-transform">🚪</span> Logout
+            </a>
+            <div class="inline-block px-4 py-1.5 rounded-full bg-emerald-100/50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-200/50 mt-4">
+                VERSION 4.0 FRESH
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-72 min-h-screen pt-24 pb-10 px-4 md:px-8 lg:pt-10 lg:px-12 relative z-10 w-full overflow-hidden">
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash-msg">✨ {{ message }}</div>
+              <div class="mb-8 p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-2xl flex items-center gap-3 animate-pulse">
+                <span class="text-xl">✨</span> {{ message }}
+              </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 """
 
 LAYOUT_END = """
-    </div>
+    </main>
+    <script>
+        // Mobile Sidebar Toggle UI
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-sidebar-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+        if (overlay) overlay.addEventListener('click', toggleSidebar);
+    </script>
 </body>
 </html>
 """
 
 INDEX_CONTENT = """
-    <div class="header" style="margin-bottom: 40px;">
-        <h1 style="font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 5px;">Dashboard Overview</h1>
-        <p style="color: var(--text-secondary); font-size: 16px;">Real-time bot performance and activity metrics.</p>
+    <header class="mb-10">
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">Capaian Bot</h2>
+        <p class="text-slate-500 mt-1 font-medium">Statistik performa dan aktivitas sistem real-time.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-[4rem] flex items-center justify-center transition-transform group-hover:scale-110 group-hover:bg-emerald-500/20">👤</div>
+            <div class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">Total Pengguna</div>
+            <div class="text-4xl font-black text-slate-800">{{ stats.total_users }}</div>
+        </div>
+        <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-500/10 rounded-bl-[4rem] flex items-center justify-center transition-transform group-hover:scale-110 group-hover:bg-yellow-500/20">🎬</div>
+            <div class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">Video Dibuat</div>
+            <div class="text-4xl font-black text-slate-800">{{ stats.videos_created }}</div>
+        </div>
+        <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-bl-[4rem] flex items-center justify-center transition-transform group-hover:scale-110 group-hover:bg-indigo-500/20">🖼️</div>
+            <div class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">Foto Diproses</div>
+            <div class="text-4xl font-black text-slate-800">{{ stats.images_processed }}</div>
+        </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="card stat-card" style="border-bottom: 4px solid var(--accent-blue);">
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value">{{ stats.total_users }}</div>
-        </div>
-        <div class="card stat-card" style="border-bottom: 4px solid var(--accent-success);">
-            <div class="stat-label">Videos Created</div>
-            <div class="stat-value">{{ stats.videos_created }}</div>
-        </div>
-        <div class="card stat-card" style="border-bottom: 4px solid var(--accent-cyan);">
-            <div class="stat-label">Images Processed</div>
-            <div class="stat-value">{{ stats.images_processed }}</div>
-        </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 35px;">
-        <div class="card">
-            <h3 style="margin-top: 0; font-size: 20px; font-weight: 700; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; color: var(--accent-royal);">
-                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-success); box-shadow: 0 0 10px var(--accent-success);"></span> 
-                Live Activity Feed
-            </h3>
-            <div style="height: 450px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 13px; display: flex; flex-direction: column-reverse; padding-right: 15px;">
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-3">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></span> 
+                    Aktivitas Terbaru
+                </h3>
+            </div>
+            <div class="space-y-4 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar flex flex-col-reverse">
                 {% for log in logs %}
-                    <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; line-height: 1.6;">
-                        <span style="color: var(--text-secondary); font-size: 11px;">{{ log.time }}</span> 
-                        <span style="color: {{ 'var(--accent-success)' if log.level == 'INFO' else 'var(--accent-danger)' }}; font-weight: 800; margin: 0 8px;">[{{ log.level }}]</span> 
-                        <span style="color: var(--text-primary);">{{ log.message }}</span>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-hover hover:border-emerald-200">
+                        <div class="flex justify-between items-start gap-4">
+                            <p class="text-sm font-semibold text-slate-700 leading-relaxed">{{ log.message }}</p>
+                            <span class="text-[10px] font-black uppercase text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-100 shrink-0">{{ log.time.split(' ')[1] }}</span>
+                        </div>
+                        <div class="mt-2 text-[10px] font-bold {{ 'text-emerald-500' if log.level == 'INFO' else 'text-rose-500' }}">{{ log.level }}</div>
                     </div>
                 {% endfor %}
             </div>
         </div>
-        <div class="card">
-            <h3 style="margin-top: 0; font-size: 20px; font-weight: 700; margin-bottom: 25px; color: var(--accent-royal);">Recent Active Users</h3>
-            <div style="display: flex; flex-direction: column; gap: 18px;">
-                {% for user in active_users[:10] %}
-                    <div style="padding: 18px; background: #f8fafc; border-radius: 16px; border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
-                        <div>
-                            <div style="font-weight: 800; font-size: 16px; color: var(--text-primary);">{{ user.id }}</div>
-                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">Activity logged: {{ user.last_seen }}</div>
+
+        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <h3 class="text-xl font-extrabold text-slate-800 mb-8">Pengguna Aktif</h3>
+            <div class="space-y-4">
+                {% for user in active_users[:8] %}
+                    <div class="flex items-center justify-between p-5 rounded-[1.5rem] bg-gradient-to-r from-slate-50 to-transparent border border-slate-100">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center text-xl shadow-sm">👤</div>
+                            <div>
+                                <div class="font-black text-slate-800">{{ user.id }}</div>
+                                <div class="text-xs text-slate-400 font-medium">Terakhir: {{ user.last_seen }}</div>
+                            </div>
                         </div>
-                        <div style="background: white; padding: 10px; border-radius: 10px; box-shadow: var(--shadow-soft);">👤</div>
+                        <div class="text-emerald-500 text-sm font-black italic">Active</div>
                     </div>
                 {% endfor %}
                 {% if not active_users %}
-                    <div style="text-align: center; padding: 40px; background: #f8fafc; border-radius: 16px;">
-                        <p style="color: var(--text-secondary);">No active users found yet.</p>
+                    <div class="text-center py-20 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+                        <div class="text-5xl mb-4">💤</div>
+                        <p class="text-slate-400 font-bold">Belum ada pengguna aktif</p>
                     </div>
                 {% endif %}
             </div>
@@ -402,207 +263,266 @@ INDEX_CONTENT = """
 """
 
 CREATE_CONTENT = """
-    <div class="header" style="margin-bottom: 40px;">
-        <h1 style="font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 5px;">Video Creator Engine</h1>
-        <p style="color: var(--text-secondary); font-size: 16px;">Generate high-converting TikTok affiliate videos in seconds.</p>
-    </div>
+    <header class="mb-10">
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">Mesin Kreator</h2>
+        <p class="text-slate-500 mt-1 font-medium">Buat video promosi viral hanya dalam hitungan detik.</p>
+    </header>
 
-    <div style="max-width: 850px; margin: 0 auto;">
-        <div class="card">
-            <form action="/generate" method="post" enctype="multipart/form-data" id="creator-form">
-                <div class="form-group">
-                    <label style="color: var(--accent-royal); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">🔗 AUTOMATED LINKS (Tiktok Shop)</label>
-                    <textarea name="product_links" placeholder="Paste product URLs here (supports bulk scraping)..." style="min-height: 140px; margin-top: 10px;"></textarea>
+    <div class="max-w-4xl">
+        <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+            <form action="/generate" method="post" enctype="multipart/form-data" id="creator-form" class="space-y-10">
+                <!-- Links Area -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">🔗 Link Produk (TikTok Shop)</label>
+                    <textarea name="product_links" placeholder="Tempel link produk di sini (mendukung banyak link sekaligus)..." class="min-h-[160px] resize-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"></textarea>
                 </div>
                 
-                <div style="position: relative; text-align: center; margin: 40px 0;">
-                    <hr style="border: none; border-top: 2px solid #f1f5f9;">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 0 20px; color: var(--text-secondary); font-size: 12px; font-weight: 800; letter-spacing: 1px;">OR MANUAL CREATION</span>
+                <!-- Divider -->
+                <div class="relative py-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+                    <div class="relative flex justify-center"><span class="bg-white px-6 text-xs font-black text-slate-300 uppercase tracking-widest">Atau Manual</span></div>
                 </div>
 
-                <div class="form-group">
-                    <label style="color: var(--accent-royal); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">🖼️ UPLOAD PRODUCT PHOTOS</label>
-                    <div style="border: 2px dashed #cbd5e1; border-radius: 18px; padding: 40px; text-align: center; background: #f8fafc; transition: all 0.3s ease; margin-top: 10px;" onmouseover="this.style.borderColor='var(--accent-blue)'; this.style.background='white';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
-                        <input type="file" name="images" multiple accept="image/*" style="opacity: 0; position: absolute; width: 0.1px; height: 0.1px;" id="file-upload">
-                        <label for="file-upload" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px; margin: 0;">
-                            <div style="font-size: 40px;">📤</div>
-                            <span style="color: var(--text-primary); font-weight: 700; font-size: 16px;">Click to select or drag images here</span>
-                            <span style="color: var(--text-secondary); font-size: 13px;">Supports PNG, JPG, JPEG, and WebP</span>
-                        </label>
+                <!-- Photos Area -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">🖼️ Upload Foto Produk</label>
+                    <div class="relative group">
+                        <input type="file" name="images" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="file-upload">
+                        <div class="border-4 border-dashed border-slate-100 rounded-[2rem] p-12 text-center bg-slate-50/50 transition-all group-hover:bg-emerald-50 group-hover:border-emerald-200">
+                            <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-sm group-hover:scale-110 transition-transform">📤</div>
+                            <h4 class="text-lg font-extrabold text-slate-700">Pilih atau Tarik Foto</h4>
+                            <p class="text-slate-400 text-sm mt-2 font-medium">Mendukung format PNG, JPG, JPEG, dan WebP</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 30px;">
-                    <label style="color: var(--accent-royal); text-transform: uppercase; letter-spacing: 1px; font-size: 12px;">🏷️ BRAND/PRODUCT NAME (Optional)</label>
-                    <input type="text" name="product_name" placeholder="Leave blank to use AI detection from links" style="margin-top: 10px;">
+                <!-- Product Name -->
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4">🏷️ Nama Produk (Opsional)</label>
+                    <input type="text" name="product_name" placeholder="Kosongkan jika ingin dideteksi otomatis oleh AI" class="focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500">
                 </div>
                 
-                <button type="submit" class="btn" style="width: 100%; margin-top: 20px; padding: 18px; font-size: 18px;">🎬 GENERATE PRODUCTION VIDEO</button>
+                <button type="submit" class="w-full py-6 bg-gradient-to-r from-emerald-500 to-emerald-400 text-white font-black text-xl rounded-2xl shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transform active:scale-[0.98] transition-all">
+                    🚀 MULAI PRODUKSI VIDEO
+                </button>
             </form>
         </div>
 
-        <!-- Animation Overlay -->
-        <div id="loading-overlay">
-            <div class="loader-container">
-                <div class="loader-ring-outer"></div>
-                <div class="loader-ring"></div>
-                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 30px;">🎬</div>
+        <!-- Result Card -->
+        {% if result_video %}
+        <div class="mt-12 bg-white p-10 rounded-[2.5rem] border-4 border-emerald-400 shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-emerald-200">✨</div>
+                <div>
+                    <h3 class="text-2xl font-black text-slate-800">Video Siap Digunakan!</h3>
+                    <p class="text-emerald-600 font-bold">Konten affiliate Anda telah diproses sempurna.</p>
+                </div>
             </div>
-            <div class="loading-text">Generating Your Content...</div>
-            <div class="loading-subtext">AI is creating description, generating voiceover, and rendering video. Please wait.</div>
+            
+            {% if description %}
+            <div class="mb-8 rounded-[1.5rem] bg-slate-900 p-8 relative group">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">📜 Naskah Viral AI</span>
+                    <button onclick="copyDesc()" class="text-xs font-black text-white bg-emerald-500 px-4 py-2 rounded-lg hover:bg-emerald-400 transition-colors" id="btn-copy-main">SALIN TEKS</button>
+                </div>
+                <div id="ai-desc" class="text-slate-300 font-medium leading-loose text-sm italic">{{ description }}</div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/download/{{ result_video }}" class="flex items-center justify-center gap-3 py-5 bg-emerald-500 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100">
+                    📥 DOWNLOAD MP4
+                </a>
+                <a href="/gallery" class="flex items-center justify-center gap-3 py-5 bg-yellow-400 text-white font-black rounded-2xl hover:bg-yellow-500 transition-all shadow-lg shadow-yellow-100">
+                    🖼️ LIHAT DI GALERI
+                </a>
+            </div>
+        </div>
+        <script>
+            function copyDesc() {
+                var text = document.getElementById("ai-desc").innerText;
+                navigator.clipboard.writeText(text).then(function() {
+                    const btn = document.getElementById("btn-copy-main");
+                    btn.innerHTML = "✅ TERSALIN!";
+                    setTimeout(() => { btn.innerHTML = "SALIN TEKS"; }, 2000);
+                });
+            }
+        </script>
+        {% endif %}
+
+        <!-- Loading Overlay Fresh -->
+        <div id="loading-overlay" class="fixed inset-0 bg-slate-50/90 backdrop-blur-xl z-[100] hidden flex-col items-center justify-center text-center p-8">
+            <div class="relative w-48 h-48 mb-10">
+                <div class="absolute inset-0 border-8 border-slate-100 rounded-full"></div>
+                <div class="absolute inset-0 border-8 border-emerald-500 rounded-full border-t-transparent animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-6xl animate-bounce">🎬</div>
+            </div>
+            <h2 class="text-4xl font-black text-slate-800 mb-4 tracking-tight">PROSES PRODUKSI...</h2>
+            <div id="status-text" class="text-xl font-bold text-emerald-600 bg-emerald-50 px-8 py-3 rounded-2xl border border-emerald-100">Inisialisasi server...</div>
+            <p class="mt-8 text-slate-400 font-medium max-w-sm">Mohon tunggu, AI sedang meracik naskah dan menggabungkan video untuk Anda.</p>
         </div>
 
         <script>
             document.getElementById('creator-form').onsubmit = function() {
-                document.getElementById('loading-overlay').style.display = 'flex';
+                document.getElementById('loading-overlay').classList.remove('hidden');
+                document.getElementById('loading-overlay').classList.add('flex');
                 const statuses = [
-                    "Analyzing product data...",
-                    "Writing viral script...",
-                    "Generating AI voiceover...",
-                    "Mixing background music...",
-                    "Rendering high-quality video...",
-                    "Finalizing effects..."
+                    "🚀 Menghubungkan ke API Tiktok...",
+                    "🧠 Groq AI: Merancang naskah persuasif...",
+                    "⚡ TTS: Menciptakan suara AI manusiawi...",
+                    "🎨 Compositing: Menambal transisi halus...",
+                    "📽️ Rendering: Memproses video Kualitas Tinggi..."
                 ];
                 let i = 0;
                 setInterval(() => {
-                    const sub = document.querySelector('.loading-subtext');
-                    if(sub) sub.innerText = statuses[i % statuses.length];
+                    const statusEl = document.getElementById('status-text');
+                    if(statusEl) {
+                        statusEl.style.opacity = '0';
+                        setTimeout(() => {
+                            statusEl.innerText = statuses[i % statuses.length];
+                            statusEl.style.opacity = '1';
+                        }, 300);
+                    }
                     i++;
-                }, 4000);
+                }, 3000);
             };
         </script>
-
-        {% if result_video %}
-        <div class="card" style="background: #f0fff4; border: 2px solid var(--accent-success); animation: softGlow 2s infinite alternate;">
-            <h2 style="color: #22543d; margin-top: 0; display: flex; align-items: center; gap: 12px; font-size: 24px;">
-                <span>✨</span> Creation Successful!
-            </h2>
-            <p style="color: #2f855a; margin-bottom: 25px;">Your high-quality affiliate video has been rendered and is ready for use.</p>
-            
-            {% if description %}
-            <div style="margin: 25px 0; background: white; padding: 25px; border-radius: 18px; border: 1px solid #c6f6d5; box-shadow: var(--shadow-soft);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
-                    <label style="font-size: 11px; color: var(--text-secondary); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">📋 AI Naskah & Deskripsi</label>
-                    <button onclick="copyDesc()" class="btn btn-outline" style="font-size: 11px; padding: 8px 16px; border-radius: 8px;">COPY TEXT</button>
-                </div>
-                <div id="ai-desc" style="font-size: 15px; line-height: 1.8; color: var(--text-primary); white-space: pre-wrap;">{{ description }}</div>
-            </div>
-            <script>
-                function copyDesc() {
-                    var text = document.getElementById("ai-desc").innerText;
-                    navigator.clipboard.writeText(text).then(function() {
-                        const btn = document.querySelector('button[onclick="copyDesc()"]');
-                        btn.innerHTML = "✅ SUCCESS!";
-                        btn.style.borderColor = "var(--accent-success)";
-                        btn.style.color = "var(--accent-success)";
-                        setTimeout(() => {
-                            btn.innerHTML = "COPY TEXT";
-                            btn.style.borderColor = "#e2e8f0";
-                            btn.style.color = "var(--text-secondary)";
-                        }, 2000);
-                    });
-                }
-            </script>
-            {% endif %}
-
-            <div style="display: flex; gap: 20px;">
-                <a href="/download/{{ result_video }}" class="btn" style="flex: 1; background: var(--accent-success); padding: 18px;">⬇️ DOWNLOAD RESULT (MP4)</a>
-            </div>
-        </div>
-        <style>@keyframes softGlow { from { box-shadow: 0 0 10px rgba(40, 167, 69, 0.1); } to { box-shadow: 0 0 25px rgba(40, 167, 69, 0.25); } }</style>
-        {% endif %}
     </div>
 """
 
 GALLERY_CONTENT = """
-    <div class="header" style="margin-bottom: 40px;">
-        <h1 style="font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 5px;">Video Gallery</h1>
-        <p style="color: var(--text-secondary); font-size: 16px;">Review and manage your viral video collection.</p>
-    </div>
+    <header class="mb-10">
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">Galeri Karya</h2>
+        <p class="text-slate-500 mt-1 font-medium">Koleksi video affiliate yang siap dipublikasikan.</p>
+    </header>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 35px;">
+    <div class="grid grid-cols-1 md:grid-cols-2 xxl:grid-cols-3 gap-8">
         {% for video in videos %}
-        <div class="card" style="padding: 10px; display: flex; flex-direction: column; overflow: hidden;">
-            <video style="width: 100%; border-radius: 14px; aspect-ratio: 9/16; background: #f1f5f9; object-fit: cover; box-shadow: inset 0 0 40px rgba(0,0,0,0.05);" controls preload="none">
-                <source src="/download/{{ video.path }}" type="video/mp4">
-            </video>
-            <div style="padding: 20px 10px 10px 10px; flex: 1;">
-                <div style="font-weight: 800; font-size: 15px; margin-bottom: 5px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ video.name }}">{{ video.name }}</div>
-                <div style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 14px;">📅</span> {{ video.date }}
-                </div>
+        <div class="bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col group">
+            <div class="relative aspect-[9/16] bg-slate-900 group-hover:scale-[1.02] transition-transform duration-500 overflow-hidden">
+                <video class="w-full h-full object-cover" controls preload="none">
+                    <source src="/download/{{ video.path }}" type="video/mp4">
+                </video>
             </div>
-            <div style="display: flex; gap: 12px; margin-top: 10px; padding: 0 10px 10px 10px;">
-                <a href="/download/{{ video.path }}" class="btn" style="flex: 1; font-size: 13px; padding: 12px;">Download</a>
-                <form action="/delete_video" method="post" style="display: contents;">
-                    <input type="hidden" name="path" value="{{ video.path }}">
-                    <button type="submit" class="btn btn-red" style="padding: 12px 18px;" onclick="return confirm('Hapus video ini permanen?')">🗑</button>
-                </form>
+            
+            <div class="p-6 flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-black text-slate-300 uppercase tracking-widest">{{ video.date }}</span>
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                </div>
+                <h4 class="font-extrabold text-slate-800 text-lg mb-4 line-clamp-1" title="{{ video.name }}">{{ video.name }}</h4>
+                
+                {% if video.script %}
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-6 group/script">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] font-black text-slate-400 tracking-widest uppercase">📜 Naskah Video</span>
+                        <button onclick="copyGalleryScript('script-{{ loop.index }}')" class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 hover:bg-white transition-all">SALIN</button>
+                    </div>
+                    <div id="script-{{ loop.index }}" class="text-xs text-slate-500 leading-relaxed font-medium italic h-20 overflow-y-auto pr-2 custom-scrollbar">{{ video.script }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-auto grid grid-cols-5 gap-3">
+                    <a href="/download/{{ video.path }}" class="col-span-4 py-3.5 bg-slate-900 text-white font-black text-sm rounded-xl text-center hover:bg-slate-800 transition-all">
+                        DOWNLOAD MP4
+                    </a>
+                    <form action="/delete_video" method="post" class="col-span-1">
+                        <input type="hidden" name="path" value="{{ video.path }}">
+                        <button type="submit" class="w-full h-full py-3.5 bg-rose-50 text-rose-500 border border-rose-100 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all" onclick="return confirm('Hapus permanen?')">
+                            🗑️
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
         {% endfor %}
     </div>
+
+    <script>
+        function copyGalleryScript(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Naskah berhasil disalin ke clipboard! 📋 ✨");
+            });
+        }
+    </script>
     
     {% if not videos %}
-    <div class="card" style="text-align: center; padding: 100px 30px; background: #f8fafc; border: 2px dashed #e2e8f0; box-shadow: none;">
-        <div style="font-size: 60px; margin-bottom: 25px; opacity: 0.3;">🎬</div>
-        <h3 style="margin-bottom: 12px; color: var(--text-primary); font-size: 22px;">No Videos Detected</h3>
-        <p style="color: var(--text-secondary); max-width: 450px; margin: 0 auto 35px auto; font-size: 15px;">Your video gallery is empty. Head over to the Creator engine to start building your affiliate content.</p>
-        <a href="/create" class="btn" style="padding: 16px 40px;">🚀 Go to Creator</a>
+    <div class="text-center py-40 bg-white rounded-[3rem] border border-dashed border-slate-200">
+        <div class="text-8xl mb-10 transform scale-110">🎬</div>
+        <h3 class="text-3xl font-black text-slate-800 mb-4">Galeri Masih Kosong</h3>
+        <p class="text-slate-400 font-medium max-w-sm mx-auto mb-10">Mulai buat video pertama Anda dengan mesin kreator kami yang super cepat.</p>
+        <a href="/create" class="inline-flex items-center gap-3 px-10 py-5 bg-emerald-500 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100">
+            🚀 BUAT VIDEO SEKARANG
+        </a>
     </div>
     {% endif %}
 """
 
 SETTINGS_CONTENT = """
-    <div class="header" style="margin-bottom: 40px;">
-        <h1 style="font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 5px;">System Console</h1>
-        <p style="color: var(--text-secondary); font-size: 16px;">Manage system assets, core engines, and bot behavior.</p>
-    </div>
+    <header class="mb-10">
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">Pusat Sistem</h2>
+        <p class="text-slate-500 mt-1 font-medium">Atur aset, mesin AI, dan performa keseluruhan bot.</p>
+    </header>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 35px;">
-        <div class="card">
-            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 12px; color: var(--accent-royal);">
-                <span>🎵</span> Background Music
-            </h3>
-            <div style="background: #f8fafc; padding: 20px; border-radius: 16px; margin: 25px 0; border: 1px solid #edf2f7;">
-                <p style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Active Selection</p>
-                <div style="font-size: 16px; font-weight: 800; color: var(--accent-blue);">{{ current_music }}</div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <!-- Background Music -->
+        <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-yellow-100">🎵</div>
+                <h3 class="text-xl font-extrabold text-slate-800">Soundtrack Utama</h3>
             </div>
             
-            <form action="/upload_music" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label style="font-size: 11px; color: var(--text-secondary); font-weight: 700;">UPLOAD SOUNDTRACK (MP3, MP4, MOV, WAV)</label>
-                    <input type="file" name="music" accept="audio/*,video/*" required style="margin-top: 10px;">
+            <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 mb-8">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">File Aktif Sekarang</p>
+                <div class="flex items-center gap-3">
+                    <span class="text-emerald-500 text-xl font-black italic">✓</span>
+                    <span class="font-bold text-slate-700">{{ current_music }}</span>
                 </div>
-                <button type="submit" class="btn btn-outline" style="width: 100%; margin-top: 10px; padding: 15px; border-width: 2px;">Update Soundtrack & Set Primary</button>
+            </div>
+            
+            <form action="/upload_music" method="post" enctype="multipart/form-data" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Upload File Baru (MP3, MP4, MOV)</label>
+                    <input type="file" name="music" accept="audio/*,video/*" required class="bg-slate-50 border-slate-100">
+                </div>
+                <button type="submit" class="w-full py-5 bg-emerald-500 text-white font-black rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100">
+                    UPDATE & SIMPAN ASET
+                </button>
             </form>
         </div>
         
-        <div class="card">
-            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 12px; color: var(--accent-royal);">
-                <span>🏥</span> System Health Monitor
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 15px; margin: 25px 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 14px;">
-                    <span style="font-size: 15px; font-weight: 600;">Groq AI Engine</span>
-                    <span style="background: #c6f6d5; color: #22543d; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800;">HEALTHY</span>
+        <!-- Health Monitor -->
+        <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-emerald-100">🏥</div>
+                <h3 class="text-xl font-extrabold text-slate-800">Status Kesehatan</h3>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="font-bold text-slate-600">Mesin AI Groq</div>
+                    <span class="px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black rounded-full uppercase">Normal</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 14px;">
-                    <span style="font-size: 15px; font-weight: 600;">FFmpeg Video Core</span>
-                    <span style="background: #c6f6d5; color: #22543d; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800;">READY</span>
+                <div class="flex items-center justify-between p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="font-bold text-slate-600">Video Core FFmpeg</div>
+                    <span class="px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black rounded-full uppercase">Ready</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 14px;">
-                    <span style="font-size: 15px; font-weight: 600;">System Storage</span>
-                    <span style="color: var(--accent-royal); font-weight: 800; font-size: 16px;">{{ storage_used }} MB</span>
+                <div class="flex items-center justify-between p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div class="font-bold text-slate-600">Penyimpanan Temp</div>
+                    <span class="text-emerald-600 font-extrabold">{{ storage_used }} MB</span>
                 </div>
             </div>
-            <div style="margin-top: 40px; font-size: 12px; color: var(--text-secondary); text-align: center; border-top: 1px solid #f1f5f9; padding-top: 25px;">
-                <strong style="color: var(--text-primary);">TikTok Affiliate Bot PRO</strong><br>
-                Enterprise Version 2.5 • Developed by Antigravity
+
+            <div class="mt-12 text-center pt-8 border-t border-slate-50">
+                <div class="text-xl font-black text-slate-800">BOT<span class="text-emerald-500">PRO</span> <span class="text-yellow-400">FRESH</span></div>
+                <p class="text-slate-400 text-[10px] font-bold mt-1 uppercase tracking-widest">Premium Affiliate Automation Engine</p>
+                <p class="text-slate-300 text-[9px] mt-4">Handcrafted with precision by Antigravity v4.0</p>
             </div>
         </div>
     </div>
 """
+# Function definitions and routes follow...
 
 def get_dashboard_data():
     if not os.path.exists(LOG_FILE):
@@ -647,41 +567,50 @@ def login():
         else:
             flash("Invalid access key. Access denied.")
             
-    # Premium Login Page Template with Inline CSS for BASE_CSS integration
-    login_html = """
-    <style>""" + BASE_CSS + """</style>
-    <div style="width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-main); font-family: 'Outfit', sans-serif;">
-        <div class="auth-container">
-            <div class="auth-logo">TIKTOK BOT PRO</div>
-            <h2 style="margin-top: 0; color: var(--text-primary); font-weight: 800;">Dashboard Login</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 14px;">Please enter your access key to continue.</p>
-            
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                  <div style="padding: 12px; background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; border-radius: 12px; margin-bottom: 20px; font-size: 13px; font-weight: 600;">
-                    {{ message }}
-                  </div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
+    # Fresh Login Page Template using Tailwind
+    return render_template_string("""
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TikTok Bot Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-md bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-slate-200/50 text-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-yellow-400 rounded-2xl flex items-center justify-center text-white text-3xl mx-auto mb-8 shadow-lg shadow-emerald-100 italic">🚀</div>
+        <h1 class="text-2xl font-black text-slate-800 mb-2">Akses Terkunci</h1>
+        <p class="text-slate-400 font-medium mb-10">Masukkan kode akses Anda untuk melanjutkan ke dashboard bot.</p>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="mb-8 p-4 bg-rose-50 border border-rose-100 text-rose-500 rounded-2xl text-sm font-bold">
+                ⚠️ {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
 
-            <form method="POST">
-                <div style="text-align: left; margin-bottom: 20px;">
-                    <label style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Access Key</label>
-                    <input type="password" name="auth_key" placeholder="••••••••" required 
-                           style="width: 100%; padding: 16px; border-radius: 14px; border: 2px solid var(--border-soft); margin-top: 8px; box-sizing: border-box; font-size: 16px; transition: all 0.3s ease;">
-                </div>
-                <button type="submit" class="btn" style="width: 100%; padding: 18px; font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">Login to Dashboard</button>
-            </form>
-            
-            <p style="margin-top: 40px; font-size: 12px; color: var(--text-secondary); opacity: 0.7;">
-                Enterprise Security Core v2.5
-            </p>
-        </div>
+        <form method="POST" class="space-y-6">
+            <div class="text-left">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 ml-2">KODE AKSES RAHASIA</label>
+                <input type="password" name="auth_key" placeholder="••••••••" required 
+                       class="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 transition-all text-center text-xl tracking-widest outline-none">
+            </div>
+            <button type="submit" class="w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-emerald-500 transition-all shadow-lg hover:shadow-emerald-200">
+                MASUK KE DASHBOARD
+            </button>
+        </form>
+        
+        <p class="mt-12 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Enterprise Edition v4.0 Fresh</p>
     </div>
-    """
-    return render_template_string(login_html)
+</body>
+</html>
+""")
 
 @app.route("/logout")
 def logout():
@@ -710,10 +639,21 @@ def gallery():
                 if file.endswith(".mp4"):
                     full_path = os.path.join(root, file)
                     rel_path = os.path.relpath(full_path, UPLOAD_FOLDER).replace("\\", "/")
+                    
+                    # Read corresponding script if exists
+                    script_content = ""
+                    script_path = full_path.replace(".mp4", "_script.txt")
+                    if os.path.exists(script_path):
+                        try:
+                            with open(script_path, "r", encoding='utf-8') as f:
+                                script_content = f.read()
+                        except: pass
+                        
                     stat = os.stat(full_path)
                     videos.append({
                         "name": file,
                         "path": rel_path,
+                        "script": script_content,
                         "date": datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M"),
                         "timestamp": stat.st_mtime
                     })
@@ -835,19 +775,23 @@ def generate():
         if not loop.run_until_complete(ai_handler.text_to_speech(description, audio_path)):
             raise Exception("TTS Failed")
         
-        video_filename = f"video_{session_id}.mp4"
-        video_path = os.path.join(session_dir, video_filename)
+        # 4. Generate Video
+        video_path = os.path.join(session_dir, f"tiktok_video_{session_id}.mp4")
+        script_path = os.path.join(session_dir, f"tiktok_video_{session_id}_script.txt")
         
-        # Look for any background file
-        bg_files = [f for f in os.listdir(MUSIC_FOLDER) if f.startswith("background.")]
-        music_path = os.path.join(MUSIC_FOLDER, bg_files[0]) if bg_files else None
+        # Save script to txt for gallery persistence
+        with open(script_path, "w", encoding='utf-8') as f:
+            f.write(description)
+            
+        success = video_processor.create_video_from_images_and_audio(image_paths, audio_path, video_path)
         
-        video_processor.create_video_from_images_and_audio(
-            image_paths, audio_path, video_path, 
-            bg_music_path=music_path, description=description
-        )
-        
-        return render_template_string(LAYOUT_START + CREATE_CONTENT + LAYOUT_END, title="Create Video", active="create", result_video=f"{session_id}/{video_filename}", product_name=product_name, description=description)
+        if success:
+            logger.info(f"Video created successfully for {product_name or scraped_name}")
+            return render_template_string(LAYOUT_START + CREATE_CONTENT + LAYOUT_END, 
+                                         title="Video Created", 
+                                         active="create", 
+                                         result_video=f"{session_id}/tiktok_video_{session_id}.mp4",
+                                         description=description)
     except Exception as e:
         flash(f"Error: {e}")
         return redirect(url_for("create"))

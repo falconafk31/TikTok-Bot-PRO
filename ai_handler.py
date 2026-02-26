@@ -121,24 +121,31 @@ class AIHandler:
             
             temp_dir = os.path.dirname(output_path)
             
-            for i, chunk in enumerate(chunks):
-                def call_tiktok_chunk(c_text):
-                    payload = {"text": c_text, "voice": "id_001"}
-                    resp = requests.post(api_url, json=payload, timeout=60)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        if "data" in data:
-                            c_path = os.path.join(temp_dir, f"chunk_{i}_{uuid.uuid4().hex[:4]}.mp3")
-                            with open(c_path, "wb") as f:
-                                f.write(base64.b64decode(data["data"]))
-                            return c_path
-                    return None
+            async def generate_chunk(i, chunk_text):
+                def call_tiktok_chunk():
+                    payload = {"text": chunk_text, "voice": "id_001"}
+                    try:
+                        resp = requests.post(api_url, json=payload, timeout=60)
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            if "data" in data:
+                                c_path = os.path.join(temp_dir, f"chunk_{i}_{uuid.uuid4().hex[:4]}.mp3")
+                                with open(c_path, "wb") as f:
+                                    f.write(base64.b64decode(data["data"]))
+                                return (i, c_path)
+                    except Exception as e:
+                        logger.error(f"TTS Chunk {i} Error: {e}")
+                    return (i, None)
+                
+                return await asyncio.to_thread(call_tiktok_chunk)
 
-                c_path = await asyncio.to_thread(call_tiktok_chunk, chunk)
-                if c_path:
-                    chunk_files.append(c_path)
-                else:
-                    logger.warning(f"Failed to generate TikTok TTS chunk {i}")
+            # Generate all chunks in parallel
+            tasks = [generate_chunk(i, chunk) for i, chunk in enumerate(chunks)]
+            results = await asyncio.gather(*tasks)
+            
+            # Sort by index to maintain sequence
+            results.sort(key=lambda x: x[0])
+            chunk_files = [path for i, path in results if path]
 
             if chunk_files:
                 # Merge chunks using FFmpeg
@@ -184,6 +191,46 @@ class AIHandler:
         except Exception as e:
             logger.error(f"gTTS Error: {e}")
             return False
+
+    def generate_images_from_prompt(self, prompt, count=5, output_dir="temp/ai_images", model="flux"):
+        """Generates multiple images from a prompt using Pollinations AI (Flux or Zimage model)."""
+        os.makedirs(output_dir, exist_ok=True)
+        image_paths = []
+        
+        api_key = os.getenv("POLLINATIONS_API_KEY")
+        headers = {}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        
+        # Clean prompt for URL
+        clean_prompt = requests.utils.quote(prompt)
+        
+        logger.info(f"Generating {count} images for prompt: {prompt} using {model} model")
+        
+        for i in range(count):
+            # Use integer seed as required by API
+            import random
+            seed = random.randint(0, 2147483647)
+            
+            # Use gen.pollinations.ai with specified model
+            # Note: Removed nologo as it's not documented in the latest API
+            url = f"https://gen.pollinations.ai/image/{clean_prompt}?seed={seed}&width=1080&height=1920&model={model}"
+            
+            try:
+                resp = requests.get(url, headers=headers, timeout=60)
+                if resp.status_code == 200:
+                    output_filename = f"ai_gen_{model}_{seed}_{i}.jpg"
+                    path = os.path.join(output_dir, output_filename)
+                    with open(path, "wb") as f:
+                        f.write(resp.content)
+                    image_paths.append(path)
+                    logger.info(f"Generated AI image {i+1}/{count}: {path}")
+                else:
+                    logger.error(f"Failed to generate image {i+1}: HTTP {resp.status_code} - {resp.text[:200]}")
+            except Exception as e:
+                logger.error(f"Error generating AI image {i+1}: {e}")
+                
+        return image_paths
 
 if __name__ == "__main__":
     # Test script

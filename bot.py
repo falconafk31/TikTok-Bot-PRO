@@ -35,9 +35,12 @@ class TikTokBot:
         self.video_processor = VideoProcessor()
         self.scraper = TikTokShopScraper()
         self.temp_dir = "temp"
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
         os.makedirs(self.temp_dir, exist_ok=True)
+        # Create bot-specific temp folder
+        self.bot_temp = os.path.join(self.temp_dir, "bot_uploads")
+        if os.path.exists(self.bot_temp):
+            shutil.rmtree(self.bot_temp)
+        os.makedirs(self.bot_temp, exist_ok=True)
         # Create assets folder if not exists
         os.makedirs(os.path.join("assets", "music"), exist_ok=True)
 

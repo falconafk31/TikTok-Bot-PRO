@@ -1,0 +1,18 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# Application Assets (Mapped via Volume in Compose)
+temp/
+logs/
+
+# Git
+.git/
+.gitignore
