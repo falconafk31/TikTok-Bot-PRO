@@ -1,31 +1,14 @@
 version: '3.8'
 
 services:
-  # Layanan Utama (Dashboard Produk/Affiliate)
-  main-dashboard:
+  # Layanan Dashboard Tunggal (Affiliate + Music)
+  dashboard-pro:
     build: .
-    container_name: tiktok-main-pro
-    command: python dashboard.py
+    container_name: tiktok-dashboard-pro
+    command: python dashboard_pro.py
     restart: unless-stopped
     ports:
       - "5000:5000"
-    volumes:
-      - ./temp:/app/temp
-      - ./logs:/app/logs
-      - ./assets:/app/assets
-    environment:
-      - PYTHONUNBUFFERED=1
-    env_file:
-      - .env
-
-  # Layanan Khusus Music Video
-  music-dashboard:
-    build: .
-    container_name: tiktok-music-pro
-    command: python music_dashboard.py
-    restart: unless-stopped
-    ports:
-      - "5001:5001"
     volumes:
       - ./temp:/app/temp
       - ./logs:/app/logs

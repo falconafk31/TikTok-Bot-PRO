@@ -1,6 +1,8 @@
 import os
 import logging
 import shutil
+import json
+from datetime import datetime
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, ConversationHandler
 from dotenv import load_dotenv
@@ -43,10 +45,36 @@ class TikTokBot:
         os.makedirs(self.bot_temp, exist_ok=True)
         # Create assets folder if not exists
         os.makedirs(os.path.join("assets", "music"), exist_ok=True)
+        self.users_file = os.path.join("logs", "users.json")
+        os.makedirs("logs", exist_ok=True)
+
+    def _save_user_data(self, user):
+        """Saves telegram user data to logs/users.json for dashboard tracking."""
+        data = {}
+        if os.path.exists(self.users_file):
+            try:
+                with open(self.users_file, "r") as f:
+                    data = json.load(f)
+            except: data = {}
+        
+        user_id = str(user.id)
+        data[user_id] = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "last_seen": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        try:
+            with open(self.users_file, "w") as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            logger.error(f"Failed to save user data: {e}")
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = update.effective_user
         logger.info(f"User {user.username} (ID: {user.id}) started the bot")
+        self._save_user_data(user)
         context.user_data['images'] = []
         context.user_data['product_name'] = None
         

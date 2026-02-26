@@ -1,19 +1,22 @@
 @echo off
 setlocal enabledelayedexpansion
-echo [TIKTOK BOT PRO] Preparing to Push to GitHub...
+echo ======================================================
+echo           TIKTOK BOT PRO - GITHUB DEPLOYER
+echo ======================================================
+echo [SYSTEM] Mempersiapkan update ke VPS via GitHub...
+echo.
 
 REM Check if Git is initialized
 if not exist .git (
-    echo [INIT] Initializing Git repository...
+    echo [INIT] Inisialisasi Git repository...
     git init
 )
 
 REM Check for remote origin
 git remote get-url origin >nul 2>&1
 if !errorlevel! neq 0 (
-    echo.
     echo [REMOTE] Remote origin belum diatur.
-    set /p repo_url="Masukkan URL Repositori GitHub (contoh: https://github.com/username/repo.git): "
+    set /p repo_url="Masukkan URL Repositori GitHub (URL HTTPS): "
     if "!repo_url!"=="" (
         echo Error: URL tidak boleh kosong!
         pause
@@ -29,25 +32,29 @@ REM Set branch to main
 git branch -M main
 
 REM Ask for commit message
-set /p commit_msg="Masukkan pesan update (kosongkan untuk 'Regular Update'): "
-if "!commit_msg!"=="" set commit_msg=Regular Update - TikTok Bot PRO
+echo.
+set /p commit_msg="Detail Update (Kosongkan utk 'Update Dashboard Pro'): "
+if "!commit_msg!"=="" set commit_msg=Update Dashboard Pro - Unified System V4
 
-echo [STAGING] Adding files...
+echo.
+echo [STAGING] Mengumpulkan file (dashboard_pro.py, bot.py, dll)...
 git add .
 
-echo [COMMIT] Committing changes...
+echo [COMMIT] Mengunci perubahan...
 git commit -m "!commit_msg!"
 
-echo [PUSHING] Uploading code to GitHub...
+echo [PUSHING] Mengunggah kode ke GitHub...
 git push origin main
 
 if !errorlevel! neq 0 (
     echo.
-    echo [ERROR] Gagal melakukan push. Pastikan koneksi internet aktif dan URL remote benar.
-    echo Jika ini repository baru, coba jalankan: git push -u origin main --force
+    echo [ERROR] Gagal upload! Cek koneksi atau jalankan: git push -u origin main --force
 ) else (
     echo.
-    echo [DONE] Proyek berhasil diperbarui di GitHub!
+    echo ======================================================
+    echo [DONE] Misi Berhasil! Kode sudah aman di GitHub.
+    echo [NEXT] Sekarang di VPS Anda: git pull && docker compose up -d --build
+    echo ======================================================
 )
 
 pause
