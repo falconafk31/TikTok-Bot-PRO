@@ -264,6 +264,11 @@ AFFILIATE_CREATOR_CONTENT = """
                         <input type="file" name="images" multiple accept="image/*" class="w-full glass-input p-3 rounded-2xl">
                         <p class="mt-2 text-[10px] text-slate-400 font-bold italic">Jika diisi, link TikTok hanya digunakan untuk mengambil naskah/script.</p>
                     </div>
+                    <div class="group">
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-4">📽️ Upload Video Produk (Opsional)</label>
+                        <input type="file" name="video_file" accept="video/mp4,video/x-m4v,video/*" class="w-full glass-input p-3 rounded-2xl">
+                        <p class="mt-2 text-[10px] text-slate-400 font-bold italic">Jika diisi, video ini akan digunakan sebagai latar belakang (mengabaikan gambar).</p>
+                    </div>
                 </div>
                 
                 <button type="submit" class="w-full py-6 bg-gradient-to-r from-emerald-500 to-emerald-400 text-white font-black text-xl rounded-2xl shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all">
@@ -324,7 +329,7 @@ AFFILIATE_CREATOR_CONTENT = """
             document.getElementById('creator-form').onsubmit = function() {
                 document.getElementById('loading-overlay').classList.remove('hidden');
                 document.getElementById('loading-overlay').classList.add('flex');
-                const statuses = ["🚀 Connecting...", "🧠 Groq AI Hooking...", "⚡ TTS Generating...", "🎨 Compositing...", "📽️ Final Rendering..."];
+                const statuses = ["🚀 Connecting...", "🧠 Groq AI Hooking...", "⚡ TTS Generating...", "🎬 Uploading Media...", "📽️ Final Rendering..."];
                 let i = 0;
                 setInterval(() => {
                     document.getElementById('status-text').innerText = statuses[i % statuses.length];
@@ -694,11 +699,14 @@ def generate_affiliate():
     url = request.form.get("url")
     product_name = request.form.get("product_name")
     manual_images = request.files.getlist("images")
+    video_file = request.files.get("video_file")
     
     # Validation
     if not url:
-        if not product_name or not manual_images or manual_images[0].filename == '':
-            flash("Jika Link kosong, Anda WAJIB mengisi Nama Produk dan Upload Foto Manual!")
+        is_manual_video = video_file and video_file.filename != ''
+        is_manual_images = manual_images and manual_images[0].filename != ''
+        if not product_name or (not is_manual_images and not is_manual_video):
+            flash("Jika Link kosong, Anda WAJIB mengisi Nama Produk dan Upload Foto atau Video Manual!")
             return redirect(url_for("create_affiliate"))
     
     try:
@@ -715,18 +723,23 @@ def generate_affiliate():
         target_name = product_name or scraped_name or "Produk Viral"
         description = ai_handler.generate_product_description(target_name)
         
-        # 3. Handle Images
+        # 3. Handle Media
         local_images = []
-        # Priority: Manual Upload -> Scraped
-        if manual_images and manual_images[0].filename != '':
+        local_video = None
+        
+        # Priority: Manual Video -> Manual Images -> Scraped Images
+        if video_file and video_file.filename != '':
+            local_video = os.path.join(session_dir, f"source_video_{session_id}.mp4")
+            video_file.save(local_video)
+        elif manual_images and manual_images[0].filename != '':
             for i, img in enumerate(manual_images[:10]):
                 path = os.path.join(session_dir, f"manual_img_{i}.jpg")
                 img.save(path)
                 local_images.append(path)
         else:
-            # Current case: URL must exist if manual_images missing (checked in validation)
+            # Current case: URL must exist if manual media missing (checked in validation)
             if not scraped_images:
-                flash("Gagal mendapatkan gambar. Berikan link valid atau upload foto manual.")
+                flash("Gagal mendapatkan gambar. Berikan link valid atau upload media manual.")
                 return redirect(url_for("create_affiliate"))
             for i, img_url in enumerate(scraped_images[:6]):
                 img_path = os.path.join(session_dir, f"img_{i}.jpg")
@@ -755,7 +768,12 @@ def generate_affiliate():
         with open(os.path.join(session_dir, "script.txt"), "w", encoding='utf-8') as f:
             f.write(description)
             
-        success = video_processor.create_video_from_images_and_audio(local_images, audio_path, video_path)
+        if local_video:
+            # Mix voice with bg music is already handled in audio_path if bg_music exists
+            # We just need to mux the audio_path onto local_video
+            success = video_processor.mix_audio_with_video(local_video, audio_path, video_path)
+        else:
+            success = video_processor.create_video_from_images_and_audio(local_images, audio_path, video_path)
         
         if success:
             return render_template_string(LAYOUT_START + AFFILIATE_CREATOR_CONTENT + LAYOUT_END, 

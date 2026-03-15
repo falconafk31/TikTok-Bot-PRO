@@ -86,3 +86,79 @@ class VideoProcessor:
         except subprocess.CalledProcessError as e:
             print(f"FFmpeg Error: {e.stderr}")
             raise e
+
+    @staticmethod
+    def mix_audio_with_bg_music(voice_path, music_path, output_path, music_volume=0.15):
+        """
+        Mixes voiceover with background music.
+        """
+        if not os.path.exists(voice_path) or not os.path.exists(music_path):
+            return False
+        
+        command = [
+            'ffmpeg', '-y',
+            '-i', voice_path,
+            '-stream_loop', '-1', '-i', music_path,
+            '-filter_complex', f"[0:a]volume=1.0[a_voice];[1:a]volume={music_volume}[a_music];[a_voice][a_music]amix=inputs=2:duration=first[outa]",
+            '-map', '[outa]',
+            '-c:a', 'libmp3lame',
+            output_path
+        ]
+        
+        try:
+            subprocess.run(command, capture_output=True, check=True)
+            return True
+        except Exception as e:
+            print(f"Mixing error: {e}")
+            return False
+
+    @staticmethod
+    def mix_audio_with_video(video_path, audio_path, output_path, bg_music_path=None):
+        """
+        Combines a video file with an audio file (and optional background music).
+        The video will loop if it's shorter than the audio.
+        """
+        if not os.path.exists(video_path) or not os.path.exists(audio_path):
+            return False
+
+        # Get audio duration to know how much to loop/cut video
+        duration_cmd = [
+            'ffprobe', '-v', 'error', '-show_entries', 'format=duration',
+            '-of', 'default=noprint_wrappers=1:nokey=1', audio_path
+        ]
+        audio_duration = float(subprocess.check_output(duration_cmd).decode().strip())
+
+        inputs = ['-stream_loop', '-1', '-i', video_path, '-i', audio_path]
+        
+        filter_complex = ""
+        audio_map = "1:a"
+        
+        if bg_music_path and os.path.exists(bg_music_path):
+            inputs.extend(['-stream_loop', '-1', '-i', bg_music_path])
+            filter_complex = "[1:a]volume=1.0[v_a];[2:a]volume=0.15[m_a];[v_a][m_a]amix=inputs=2:duration=first[outa]"
+            audio_map = "[outa]"
+
+        command = [
+            'ffmpeg', '-y'
+        ]
+        command.extend(inputs)
+        
+        if filter_complex:
+            command.extend(['-filter_complex', filter_complex])
+        
+        command.extend([
+            '-map', '0:v',
+            '-map', audio_map,
+            '-c:v', 'libx264',
+            '-preset', 'fast',
+            '-pix_fmt', 'yuv420p',
+            '-t', str(audio_duration),
+            output_path
+        ])
+
+        try:
+            subprocess.run(command, capture_output=True, check=True)
+            return True
+        except Exception as e:
+            print(f"Video muxing error: {e}")
+            return False
